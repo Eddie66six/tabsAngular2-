@@ -1,7 +1,7 @@
 <div id="tab" (drop)="onDrop($event)" (dragover)="onDragOver($event)">
     <div class="tabs" [ngClass]="{'selected':tab.selected}"
-        *ngFor="let tab of tabs" draggable="true" [attr.order]="tab.order" (dragstart)="drag($event)" (click)="select(tab)">{{ tab.title }}
-            <div (click)="remove($event, tab)">X</div>
+        *ngFor="let tab of filterModel()" draggable="true" [attr.order]="tab.order" (dragstart)="drag($event)" (click)="select(tab)">{{ tab.title }}
+            <span (click)="remove($event, tab)">X</span>
     </div>
     <button (click)="addNew()">Add</button>
 </div>

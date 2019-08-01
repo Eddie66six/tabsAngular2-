@@ -39,18 +39,19 @@ export class TabsComponent implements OnInit {
 
     let indexFirst: number;
     let indexSecond: number;
-    for (let index = 0; index < this.tabs.length; index++) {
-      if (this.dragOrder == this.tabs[index].order) {
+    let tabs = this.filterModel();
+    for (let index = 0; index < tabs.length; index++) {
+      if (this.dragOrder == tabs[index].order) {
         indexFirst = index;
       } 
-      else if (this.onDragOrder == this.tabs[index].order) {
+      else if (this.onDragOrder == tabs[index].order) {
         indexSecond = index;
       }
     }
 
-    let tmpFirst = JSON.parse(JSON.stringify(this.tabs[indexFirst]));
-    let tmpOrderSecond = this.tabs[indexSecond].order;
-    this.tabs[indexFirst] = this.tabs[indexSecond];
+    let tmpFirst = JSON.parse(JSON.stringify(tabs[indexFirst]));
+    let tmpOrderSecond = tabs[indexSecond].order;
+    this.tabs[indexFirst] = tabs[indexSecond];
     this.tabs[indexFirst].order = tmpFirst.order;
     this.tabs[indexSecond] = tmpFirst;
     this.tabs[indexSecond].order = tmpOrderSecond;
@@ -95,29 +96,36 @@ export class TabsComponent implements OnInit {
 
   remove(event, tab){
     event.stopPropagation();
+    if(tab.order == 1){
+      let _tab = this._getTabForOrder(tab.order + 1);
+      if(_tab) _tab.selected = true;
+    }
+    else {
+      let _tab = this._getTabForOrder(tab.order - 1);
+      if(_tab) _tab.selected = true;
+    }
     tab.removed = true;
-    if(this.tabs.length == 1) return;
-    let tmpOrder = tab.order == 1 ? tab.order + 1 : tab.order -1;
-    while (tmpOrder > 1) {
-      let tmpTab = this._getTabForOrder(tmpOrder);
-      if(!tmpTab){
-        tmpOrder++;
-        continue;
-      };
-      if(!tmpTab.removed){
-        this.select(tmpTab);
-        return;
-      }
-      tmpOrder--;
+    tab.select = false;
+    tab.order = -1;
+
+    let sort = this.filterModel().sort((a,b) => (a.order > b.order) ? 1 : ((b.order > a.order) ? -1 : 0));
+    for (let index = 0; index < sort.length; index++) {
+      sort[index].order = index + 1;
+      
     }
   }
 
   _getTabForOrder(order){
-    for (let index = 0; index < this.tabs.length; index++) {
-      if(this.tabs[index].order == order){
-        return this.tabs[index];
+    let tabs = this.filterModel();
+    for (let index = 0; index < tabs.length; index++) {
+      if(tabs[index].order == order){
+        return tabs[index];
       }
     }
     return null;
+  }
+
+  filterModel(){
+    return this.tabs.filter(el => !el.removed);
   }
 }
