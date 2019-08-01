@@ -49,18 +49,12 @@ export class TabsComponent implements OnInit {
       }
     }
 
-    this.arrayMove(indexFirst, indexSecond);
-    let sort = this.filterModel();//.sort((a,b) => (a.order > b.order) ? 1 : ((b.order > a.order) ? -1 : 0));
+    this.tabs.splice(indexSecond, 0, this.tabs.splice(indexFirst, 1)[0]);
+    let sort = this.filterModel();
     for (let index = 0; index < sort.length; index++) {
       sort[index].order = index + 1;
     }
-    //troca posicao
-    // let tmpFirst = JSON.parse(JSON.stringify(this.tabs[indexFirst]));
-    // let tmpOrderSecond = this.tabs[indexSecond].order;
-    // this.tabs[indexFirst] = this.tabs[indexSecond];
-    // this.tabs[indexFirst].order = tmpFirst.order;
-    // this.tabs[indexSecond] = tmpFirst;
-    // this.tabs[indexSecond].order = tmpOrderSecond;
+    
     this.eventAlteredModel.emit(null);
     this.dragOrder = null;
     this.onDragOrder = null;
@@ -137,14 +131,4 @@ export class TabsComponent implements OnInit {
   filterModel(){
     return this.tabs.filter(el => !el.removed);
   }
-
-  arrayMove(oldIndex, newIndex) {
-    if (newIndex >= this.tabs.length) {
-        var k = newIndex - this.tabs.length + 1;
-        while (k--) {
-          this.tabs.push(undefined);
-        }
-    }
-    this.tabs.splice(newIndex, 0, this.tabs.splice(oldIndex, 1)[0]);
-  };
 }
