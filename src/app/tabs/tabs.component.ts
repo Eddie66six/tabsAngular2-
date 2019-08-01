@@ -3,6 +3,9 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 export interface Tab {
   title: string;
   order: number;
+  hash: string;
+  selected?: boolean
+  removed?: boolean
 }
 
 @Component({
@@ -15,6 +18,7 @@ export class TabsComponent implements OnInit {
 
   @Input() tabs: Tab[] = [];
   @Output() eventAlteredModel = new EventEmitter();
+  @Output() eventSelect = new EventEmitter();
 
   private onDragOrder: number;
   private dragOrder: number;
@@ -64,8 +68,56 @@ export class TabsComponent implements OnInit {
       this.dragOrder = event.target.getAttribute("order");
   }
 
-  addNew() {
-    this.tabs.push({ title: "new - " + this.tabs.length, order: this.tabs.length });
-    this.eventAlteredModel.emit(null);
+  addNew(title?: string) {
+    this.tabs.push({ title: title || ("new - " + this.tabs.length), order: this.tabs.length, hash: this._gerarHash() });
+    this.select(this.tabs[this.tabs.length-1]);
+  }
+
+  select(tab: Tab){
+    for (let index = 0; index < this.tabs.length; index++) {
+      this.tabs[index].selected = false;
+    }
+    tab.selected = true;
+    this.eventSelect.emit(tab.hash);
+  }
+
+  _gerarHash(){
+    let date = new Date();
+    let hash = date.getDate() + date.getHours() + date.getMilliseconds() + "1";
+    for (let index = 0; index < this.tabs.length; index++) {
+      if(this.tabs[index].hash == hash){
+        index = 0;
+        hash+=date.getMilliseconds();
+      }
+    }
+    return hash;
+  }
+
+  remove(event, tab){
+    event.stopPropagation();
+    tab.removed = true;
+    if(this.tabs.length == 1) return;
+    let tmpOrder = tab.order == 1 ? tab.order + 1 : tab.order -1;
+    while (tmpOrder > 1) {
+      let tmpTab = this._getTabForOrder(tmpOrder);
+      if(!tmpTab){
+        tmpOrder++;
+        continue;
+      };
+      if(!tmpTab.removed){
+        this.select(tmpTab);
+        return;
+      }
+      tmpOrder--;
+    }
+  }
+
+  _getTabForOrder(order){
+    for (let index = 0; index < this.tabs.length; index++) {
+      if(this.tabs[index].order == order){
+        return this.tabs[index];
+      }
+    }
+    return null;
   }
 }

@@ -1,2 +1,3 @@
 <button (click)="addTab()">home add</button>
-<app-tabs [tabs]="modelTabs" (eventAlteredModel)="evento($event)"></app-tabs>
+<app-tabs #tab [tabs]="modelTabs" (eventAlteredModel)="evento($event)" (eventSelect)="select($event)"></app-tabs>
+<div>{{conteudoSelecionado.conteudo}}</div>
